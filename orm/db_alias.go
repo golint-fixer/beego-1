@@ -76,6 +76,18 @@ type _dbCache struct {
 	cache map[string]*alias
 }
 
+//delete database aliase with original name
+//自定义
+func (ac *_dbCache) del(name string) bool {
+	ac.mux.Lock()
+	defer ac.mux.Unlock()
+	if _, ok := ac.cache[name]; ok {
+		delete(ac.cache, name)
+		return true
+	}
+	return false
+}
+
 // add database alias with original name.
 func (ac *_dbCache) add(name string, al *alias) (added bool) {
 	ac.mux.Lock()
@@ -197,6 +209,15 @@ func addAliasWthDB(aliasName, driverName string, db *sql.DB) (*alias, error) {
 func AddAliasWthDB(aliasName, driverName string, db *sql.DB) error {
 	_, err := addAliasWthDB(aliasName, driverName, db)
 	return err
+}
+
+//delAliasWithDB
+func DelAliasWthDB(aliasName string) error {
+	ret := dataBaseCache.del(aliasName)
+	if ret {
+		return nil
+	}
+	return fmt.Errorf("DataBase alias name `%s` not exist", aliasName)
 }
 
 // RegisterDataBase Setting the database connect params. Use the database driver self dataSource args.
