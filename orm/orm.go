@@ -55,6 +55,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"time"
@@ -495,13 +496,14 @@ func (o *orm) Driver() Driver {
 }
 
 // NewOrm create new orm
+//为了解决default库无法链接，panic后导致slave库也无法使用
 func NewOrm() Ormer {
 	BootStrap() // execute only once
 
 	o := new(orm)
 	err := o.Using("default")
 	if err != nil {
-		panic(err)
+		log.Printf("[NewOrm][err: %s]\n", err.Error())
 	}
 	return o
 }
